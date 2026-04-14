@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Birthday Surprise</title>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+        font-family: Arial;
+      }
+
+      canvas {
+        display: none;
+      }
+
+      .start-screen {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: black;
+        transition: 0.8s;
+      }
+
+      .start-box {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 30px;
+        border-radius: 25px;
+        text-align: center;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+
+      .start-box img {
+        width: 280px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+      }
+
+      .start-btn {
+        padding: 12px 25px;
+        font-size: 18px;
+        background: #ff69b4;
+        color: white;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+      }
+
+      .action-box {
+        display: none;
+        opacity: 0;
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.08);
+        padding: 12px 18px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
+        transition: 0.5s;
+      }
+
+      .action-box.show {
+        opacity: 1;
+      }
+
+      .action-box img {
+        width: 55px;
+        border-radius: 10px;
+      }
+
+      .action-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .title {
+        color: #ff69b4;
+        font-size: 16px;
+        margin-bottom: 5px;
+        font-weight: bold;
+        text-align: center;
+        text-shadow: 0 0 8px #ff69b4;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        font-size: 15px;
+        background: #ff69b4;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+      }
+
+      .popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(2px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .popup-content {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(10px);
+        width: 33%;
+        min-width: 300px;
+        padding: 20px;
+        border-radius: 20px;
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        animation: zoom 0.5s ease;
+        box-shadow: 0 0 25px rgba(255, 105, 180, 0.4);
+      }
+
+      @keyframes zoom {
+        from { transform: scale(0.7); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+
+      .popup-content img {
+        width: 40%;
+        border-radius: 15px;
+      }
+
+      .text {
+        width: 60%;
+      }
+
+      .text h2 {
+        color: #ff69b4;
+        margin-top: 0;
+      }
+
+      .text p {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.5;
+      }
+
+      .close {
+        margin-top: 10px;
+        padding: 6px 12px;
+        border: none;
+        background: #ff69b4;
+        color: white;
+        border-radius: 12px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="start-screen" id="start">
+      <div class="start-box">
+        <img src="image/2.png" />
+        <br />
+        <button class="start-btn" onclick="startApp()">Mở quà 🎁</button>
+      </div>
+    </div>
+
+    <audio id="music" src="music.mp3" loop></audio>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="action-box" id="actionBox">
+      <img src="image/3.png" />
+      <div class="action-text">
+        <div class="title">Happy Birthday Sao Mai 🎂</div>
+        <button class="btn" onclick="openPopup()">Click vào đây 💖</button>
+      </div>
+    </div>
+
+    <div class="popup" id="popup">
+      <div class="popup-content">
+        <img src="image/1.jpg" />
+        <div class="text">
+          <h2>Happy Birthday Sao Mai 🎂</h2>
+          <p>
+            Tớ không biết phải nói gì cho thật hay, chỉ mong là mọi thứ đến với
+            cậu sẽ luôn nhẹ nhàng và dễ chịu.<br />
+            Hy vọng cậu sẽ luôn có những niềm vui nhỏ, đủ để mỗi ngày trôi qua
+            đều thấy ổn.<br />
+            Cứ rực rỡ theo cách riêng của cậu nhé, và chỉ cần cậu luôn cảm thấy
+            vui vẻ mỗi ngày là được rồi 😊💖
+          </p>
+          <button class="close" onclick="closePopup()">Đóng</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+
+      const text = "HAPPY BIRTHDAY ";
+      const letters = text.split("");
+
+      const fontSize = 18;
+      const columns = canvas.width / fontSize;
+      const drops = [];
+
+      for (let i = 0; i < columns; i++) drops[i] = 1;
+
+      let running = false;
+
+      function draw() {
+        if (!running) return;
+
+        ctx.fillStyle = "rgba(0,0,0,0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#ff69b4";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+          const char = letters[Math.floor(Math.random() * letters.length)];
+          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      setInterval(draw, 33);
+
+      function startApp() {
+        const start = document.getElementById("start");
+        start.style.opacity = "0";
+
+        document.getElementById("music").play();
+
+        setTimeout(() => {
+          start.style.display = "none";
+          canvas.style.display = "block";
+          running = true;
+
+          setTimeout(() => {
+            const box = document.getElementById("actionBox");
+            box.style.display = "flex";
+            setTimeout(() => box.classList.add("show"), 50);
+          }, 2500);
+        }, 700);
+      }
+
+      function openPopup() {
+        document.getElementById("popup").style.display = "flex";
+      }
+
+      function closePopup() {
+        document.getElementById("popup").style.display = "none";
+      }
+    </script>
+  </body>
+</html>
